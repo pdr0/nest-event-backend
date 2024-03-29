@@ -7,31 +7,36 @@ import {
   Param,
   Body,
   HttpCode,
-  ParseIntPipe,
-  ValidationPipe,
+  Logger,
+  NotFoundException,
 } from '@nestjs/common';
 
-import { Event } from '../entities/event.entity';
-import { CreateEventDto } from '../dtos/create-event-dto';
+import { Event } from './event.entity';
+import { CreateEventDto } from './dto/create-event-dto';
 import { Repository, MoreThan, Like } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { UpdateEventDto } from './dto/update-event-dto';
 
 @Controller({ path: '/events' })
 export class EveventController {
   private events: Event[] = [];
+  private readonly logger = new Logger(EveventController.name);
 
   constructor(
     @InjectRepository(Event)
     private readonly repository: Repository<Event>,
   ) {}
 
-  //FIND ALL
+  // FIND ALL
   @Get()
-  findAll() {
-    return this.repository.find();
+  async findAll() {
+    this.logger.log(`Hit the findall methods`);
+    const events = await this.repository.find();
+    this.logger.debug(`Found ${events.length} events in the system`);
+    return events;
   }
 
-  //FIND ALL
+  // PRACTICE
   @Get('/practice')
   async practice() {
     return await this.repository.find({
@@ -52,18 +57,27 @@ export class EveventController {
 
   // FIND ONE
   @Get(':id')
-  async findOne(@Param('id', ParseIntPipe) id: number) {
-    console.log(typeof id);
-    return await this.repository.findOne({
+  async findOne(@Param('id') id: number) {
+    this.logger.log(`Event ID ${id}`);
+    const event = await this.repository.findOne({
       where: {
         id,
       },
     });
+
+    if (!event) {
+      throw new NotFoundException();
+    }
+
+    return event;
   }
 
   //CREATE
   @Post()
-  async create(@Body() input: CreateEventDto) {
+  async create(
+    @Body()
+    input: CreateEventDto,
+  ) {
     return await this.repository.save({
       ...input,
       when: new Date(input.when),
@@ -73,7 +87,11 @@ export class EveventController {
 
   // PATCH
   @Patch(':id')
-  async update(@Param(':id') id, @Body() bodyInput) {
+  async update(
+    @Param(':id') id,
+    @Body()
+    bodyInput: UpdateEventDto,
+  ) {
     const event = await this.repository.findOne(id);
     let result = event;
     if (event !== undefined) {

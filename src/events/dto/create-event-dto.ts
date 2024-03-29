@@ -13,5 +13,6 @@ export class CreateEventDto {
   @IsString()
   when: string;
   @Length(5, 255)
+  @Length(10, 255)
   addres: string;
 }

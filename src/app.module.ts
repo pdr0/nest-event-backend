@@ -1,26 +1,45 @@
-import { Event } from './entities/event.entity';
 import { Module } from '@nestjs/common';
 import { AppService } from './app.service';
 import { AppController } from './app.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { EveventController } from './controllers/events.controller';
+import { EventsModule } from './events/events.module';
+import { ConfigModule } from '@nestjs/config';
+import { AppJapanService } from './app.japan.service';
+import { AppDummy } from './app.dummy';
+import ormConfig from './config/orm.config';
+import ormConfigProd from './config/orm.config.prod';
 
 // OBJECT RELATIONAL MAPPING - ORM
 @Module({
-  imports: [
-    TypeOrmModule.forRoot({
-      type: 'mysql',
-      host: '127.0.0.1',
-      port: 3306,
-      username: 'root',
-      password: 'example',
-      database: 'nest-events',
-      entities: [Event],
-      synchronize: true, // Careful with this property and not put it in production
-    }),
-    TypeOrmModule.forFeature([Event]),
+  providers: [
+    {
+      provide: AppService,
+      useClass: AppJapanService,
+    },
+    {
+      provide: 'APP_NAME',
+      useValue: 'Nest Event Backend!',
+    },
+    {
+      provide: 'MESSAGE',
+      inject: [AppDummy],
+      useFactory: (app) => `${app.dummy()} Factory!`,
+    },
+    AppDummy,
   ],
-  controllers: [AppController, EveventController],
-  providers: [AppService],
+  controllers: [AppController],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: '.env',
+      load: [ormConfig],
+      expandVariables: true,
+    }),
+    TypeOrmModule.forRootAsync({
+      useFactory:
+        process.env.NODE_ENV !== 'production' ? ormConfig : ormConfigProd,
+    }),
+    EventsModule,
+  ],
 })
 export class AppModule {}
