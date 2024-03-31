@@ -1,7 +1,13 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 import { Event } from './event.entity';
 
-@Entity()
+@Entity('attendee')
 export class Attendee {
   @PrimaryGeneratedColumn()
   id: number;
@@ -9,6 +15,13 @@ export class Attendee {
   @Column()
   name: string;
 
-  @ManyToOne(() => Event, (event) => event.attendees)
+  @ManyToOne(() => Event, (event) => event.attendees, {
+    nullable: false,
+  })
+  /* @JoinColumn({
+    name: 'event_id',
+    referencedColumnName: 'secondary',
+  }) */
+  @JoinColumn()
   event: Event;
 }
