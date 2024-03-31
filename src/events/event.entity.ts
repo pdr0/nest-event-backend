@@ -1,6 +1,13 @@
 import { Expose } from 'class-transformer';
-import { Column, Entity, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+import {
+  Column,
+  Entity,
+  PrimaryGeneratedColumn,
+  OneToMany,
+  ManyToOne,
+} from 'typeorm';
 import { Attendee } from './attendee.entity';
+import { User } from 'src/auth/user.entity';
 @Entity('event')
 export class Event {
   @PrimaryGeneratedColumn()
@@ -25,4 +32,11 @@ export class Event {
     cascade: true,
   })
   attendees: Attendee[];
+
+  @ManyToOne(() => User, (user) => user.organized)
+  @Expose()
+  organizer: User;
+
+  @Column({ nullable: true })
+  organizerId: number;
 }

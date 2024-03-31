@@ -8,6 +8,10 @@ import { AppJapanService } from './app.japan.service';
 import { AppDummy } from './app.dummy';
 import ormConfig from './config/orm.config';
 import ormConfigProd from './config/orm.config.prod';
+import { SchoolModule } from './school/school.module';
+import { GraphQLModule } from '@nestjs/graphql';
+import { AuthModule } from './auth/auth.module';
+import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 
 // OBJECT RELATIONAL MAPPING - ORM
 @Module({
@@ -40,6 +44,13 @@ import ormConfigProd from './config/orm.config.prod';
         process.env.NODE_ENV !== 'production' ? ormConfig : ormConfigProd,
     }),
     EventsModule,
+    SchoolModule,
+    AuthModule,
+    GraphQLModule.forRoot<ApolloDriverConfig>({
+      driver: ApolloDriver,
+      autoSchemaFile: true,
+      playground: true,
+    }),
   ],
 })
 export class AppModule {}

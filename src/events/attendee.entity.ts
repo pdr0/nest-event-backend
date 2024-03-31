@@ -6,6 +6,8 @@ import {
   JoinColumn,
 } from 'typeorm';
 import { Event } from './event.entity';
+import { Expose } from 'class-transformer';
+import { User } from 'src/auth/user.entity';
 
 @Entity('attendee')
 export class Attendee {
@@ -24,4 +26,11 @@ export class Attendee {
   }) */
   @JoinColumn()
   event: Event;
+
+  @ManyToOne(() => User, (user) => user.attended)
+  @Expose()
+  user: User;
+
+  @Column()
+  userId: number;
 }
