@@ -9,21 +9,18 @@ import {
   HttpCode,
   Logger,
   NotFoundException,
-  SerializeOptions,
   UseInterceptors,
   ClassSerializerInterceptor,
 } from '@nestjs/common';
 
 import { Event } from './event.entity';
 import { CreateEventDto } from './dto/create-event-dto';
-import { Repository, MoreThan, Like } from 'typeorm';
+import { Like, MoreThan, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UpdateEventDto } from './dto/update-event-dto';
+import { Attendee } from './attendee.entity';
 
 @Controller({ path: '/events' })
-@SerializeOptions({
-  strategy: 'excludeAll',
-})
 export class EveventController {
   private events: Event[] = [];
   private readonly logger = new Logger(EveventController.name);
@@ -31,6 +28,8 @@ export class EveventController {
   constructor(
     @InjectRepository(Event)
     private readonly repository: Repository<Event>,
+    @InjectRepository(Attendee)
+    private readonly attendeeRepository: Repository<Attendee>,
   ) {}
 
   // FIND ALL
@@ -45,12 +44,20 @@ export class EveventController {
   // PRACTICE 2
   @Get('practice2')
   async practice2() {
-    return await this.repository.findOne({
+    const event = await this.repository.findOne({
       where: {
         id: 1,
       },
       relations: ['attendees'],
     });
+
+    const attendee = new Attendee();
+    attendee.name = 'Pedro Selas';
+
+    event.attendees.push(attendee);
+    await this.repository.save(event);
+
+    return event;
   }
 
   // PRACTICE

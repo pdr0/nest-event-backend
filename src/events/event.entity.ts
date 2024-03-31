@@ -21,6 +21,8 @@ export class Event {
 
   // First param, a function that returns the type of the relation
   // Second param, other side of the relation with a function and a given argument of the relative type
-  @OneToMany(() => Attendee, (attendee) => attendee.event)
+  @OneToMany(() => Attendee, (attendee) => attendee.event, {
+    cascade: true,
+  })
   attendees: Attendee[];
 }
