@@ -7,8 +7,8 @@ import {
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Attendee } from './../events/attendee.entity';
-import { Event } from './../events/event.entity';
+import { Attendee } from '../events/attendee.entity';
+import { Event } from '../events/event.entity';
 import { Profile } from './profile.entity';
 import { Field, Int, ObjectType } from '@nestjs/graphql';
 
